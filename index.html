@@ -1,9 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Half-Life 37</title>
-
 <link rel="icon" href="data:,">
+<script>/* the language before first paint (same rules as src/core/i18n.js detect()): ?lang=, #ru/#en, last pick, browser */
+(function () { var d = document.documentElement, l = null;
+  try { l = new URLSearchParams(location.search).get('lang'); } catch (e) {}
+  if (l !== 'en' && l !== 'ru') { l = (location.hash || '').slice(1); }
+  if (l !== 'en' && l !== 'ru') { try { l = localStorage.getItem('hl37.lang'); } catch (e) { l = null; } }
+  if (l !== 'en' && l !== 'ru') { l = /^(ru|be|uk|kk)\b/i.test(navigator.language || '') ? 'ru' : 'en'; }
+  d.lang = l; })();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,500&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@600;700&family=Cinzel:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,500&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@600;700&family=Cinzel:wght@600&family=Fira+Sans+Extra+Condensed:ital,wght@0,500;0,600;0,700;1,500&family=Fira+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+SC:wght@600&family=Cormorant+Garamond:wght@600;700&display=swap">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
@@ -16,15 +27,39 @@
 :root {
   --ink: #0c0b0a; --ink-2: #16130f; --paper: #efe7da; --dim: rgba(239, 231, 218, .58); --faint: rgba(239, 231, 218, .14);
   --amber: #ffb02e; --amber-dim: rgba(255, 176, 46, .55); --clay: #e07a52; --panel: rgba(10, 9, 8, .66); --red: #d0302a;
-  --display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  --body: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --display: 'Barlow Condensed', 'Fira Sans Extra Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --body: 'Barlow', 'Fira Sans', 'Helvetica Neue', Arial, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   --hand: 'Caveat', 'Comic Sans MS', cursive;
-  --lore: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --lore: 'Cinzel', 'Cormorant SC', 'Trajan Pro', Georgia, serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+html[lang=ru] { --display: 'Fira Sans Extra Condensed', 'Barlow Condensed', 'Arial Narrow', sans-serif; --body: 'Fira Sans', 'Barlow', 'Helvetica Neue', Arial, sans-serif; --lore: 'Cormorant SC', 'Cinzel', Georgia, serif; }
+/* static text before main.js runs: show the boot hint in the language the inline script picked */
+html:not([lang=ru]) #boothint [lang=ru], html[lang=ru] #boothint [lang=en] { display: none; }
+/* Russian runs ~20% longer: a wider label column in Options, the NEW tag on post-finale unlocks */
+@media (min-width: 641px) { html[lang=ru] .opts .orow { grid-template-columns: 196px minmax(180px, 300px) 1fr; } }
+html[lang=ru] #mnav button.fresh .slab::after { content: 'НОВОЕ'; }
+html[lang=ru] .opts .seg button { letter-spacing: .06em; padding: 6px 10px; } /* Cyrillic caps are wider: «Сюжет · Обычная · Сын пастора» on one row */
+/* boot language picker */
+#boot .langs { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+#boot .langs button { pointer-events: auto; font-family: var(--mono); font-size: 13px; letter-spacing: .08em; color: var(--dim); border: 1px solid var(--faint); padding: 8px 16px; min-height: 40px; transition: color .15s, border-color .15s, background .15s; }
+#boot .langs button:hover { color: var(--paper); border-color: var(--dim); }
+#boot .langs button[aria-pressed=true] { color: var(--ink); background: var(--amber); border-color: var(--amber); }
+/* click-to-continue subtitles */
+#subs .cc.show { pointer-events: auto; cursor: pointer; }
+#subs .cc .more { display: none; }
+#subs .cc.wait .more { display: inline-flex; align-items: center; gap: 6px; margin-left: .55em; font-family: var(--mono); font-size: .62em; letter-spacing: .08em; color: var(--amber); vertical-align: middle; white-space: nowrap; animation: pulse 1.4s ease-in-out infinite; }
+#subs .cc.wait .more::before { content: '▸'; font-size: 1.5em; line-height: 1; }
+/* dialogue log */
+#logp .box { max-width: 760px; }
+#loglist { display: grid; gap: 10px; font-size: 15px; line-height: 1.45; user-select: text; -webkit-user-select: text; }
+#loglist .lch { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--amber); text-transform: uppercase; margin-top: 10px; }
+#loglist .lsay .who { font-family: var(--display); font-weight: 600; letter-spacing: .12em; color: var(--clay); margin-right: .5em; font-size: .86em; }
+#loglist .lcap { color: var(--dim); font-style: italic; }
+#loglist .lach { color: var(--amber); font-size: 13px; }
 html, body { margin: 0; height: 100%; background: var(--ink); color: var(--paper); overflow: hidden; font-family: var(--body); -webkit-tap-highlight-color: transparent; }
 body { overscroll-behavior: none; touch-action: none; user-select: none; -webkit-user-select: none; }
 #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
@@ -271,7 +306,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 /* paused: say so (a frozen frame after a tab switch otherwise looks like a hang); click/tap resumes */
 #pause { z-index: 34; display: flex; align-items: center; justify-content: center; }
 #pause button { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--display); font-weight: 600; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: .3em; text-transform: uppercase; color: var(--paper); background: rgba(10,9,8,.66); border: 1px solid var(--amber-dim); padding: 12px 22px 12px 28px; }
-#pause button span { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--amber); }
+#pause button .ph { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--amber); }
 
 #next { z-index: 36; display: flex; justify-content: flex-end; align-items: flex-end; padding: 0 16px max(18px, env(safe-area-inset-bottom)); }
 #next button { position: relative; display: inline-flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 600; font-size: clamp(17px, 2vw, 22px); letter-spacing: .16em; text-transform: uppercase; color: var(--ink); background: var(--amber); padding: 10px 18px 10px 20px; opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .4s, visibility 0s .4s; visibility: hidden; pointer-events: none; }
@@ -304,70 +339,75 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 }
 @media (prefers-reduced-motion: reduce) { #card .t { transition: none; } * { animation-duration: 0s !important; } }
 </style>
-<canvas id="gl" tabindex="0" aria-label="Interactive 3D birthday card"></canvas>
+</head>
+<body>
+<canvas id="gl" tabindex="0" aria-label="Interactive 3D birthday card" data-i18n-aria="a11y.canvas"></canvas>
 
-<div id="boot" class="ov" role="button" tabindex="0" aria-label="Start">
+<div id="boot" class="ov" role="button" tabindex="0" aria-label="Start" data-i18n-aria="a11y.start">
   <div class="term">
     <div id="bootlines"></div>
     <div class="bar"><i id="bootbar"></i></div>
-    <div class="begin" id="bootbegin">Click to begin</div>
-    <div class="hint" id="boothint">Sound on. Headphones make the anvils better.</div>
+    <div class="begin" id="bootbegin" data-i18n="boot.begin">Click to begin</div>
+    <div class="hint" id="boothint" data-i18n="boot.hint"><span lang="en">Sound on. Headphones make the anvils better.</span><span lang="ru">Включи звук. В наушниках наковальни звучат лучше.</span></div>
+    <div class="langs" id="bootlangs" role="group" aria-label="Language / Язык"><button data-lang="en" lang="en" aria-pressed="false">English</button><button data-lang="ru" lang="ru" aria-pressed="false">Русский</button></div>
   </div>
 </div>
 
 <div id="menu" class="ov" hidden>
   <div class="mwrap">
-    <button class="badge" id="badge" type="button" aria-label="Lambda badge">
+    <button class="badge" id="badge" type="button" aria-label="Lambda badge" data-i18n-aria="a11y.badge">
       <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring" cx="50" cy="50" r="44"/><g class="lam"><path class="rest" d="M30 80 L51 50 L68 80"/><path class="leg" d="M27 20 H34 L52.2 52"/></g></svg>
       <span class="slashes" aria-hidden="true"><i>/</i><i>/</i><i>/</i></span>
     </button>
     <h1 class="logo" id="logo">Half-Life<span class="three">3</span><span class="seven" id="seven">7</span></h1>
-    <div class="campaign">The Uncle V Campaign</div>
-    <nav id="mnav" aria-label="Main menu">
-      <button class="primary" data-act="new"><span class="slab">New game</span></button>
-      <button data-act="load" aria-disabled="true"><span class="slab">Load game</span></button>
-      <button data-act="chapters"><span class="slab">Chapters</span></button>
-      <button data-act="sandbox" class="unlock" hidden><span class="slab">Sandbox</span></button>
-      <button data-act="letter" class="unlock" hidden><span class="slab">Read the letter</span></button>
-      <button data-act="options"><span class="slab">Options</span></button>
-      <button data-act="quit"><span class="slab">Quit</span></button>
+    <div class="campaign" data-i18n="menu.campaign">The Uncle V Campaign</div>
+    <nav id="mnav" aria-label="Main menu" data-i18n-aria="a11y.mainmenu">
+      <button class="primary" data-act="new"><span class="slab" data-i18n="menu.new">New game</span></button>
+      <button data-act="load" aria-disabled="true"><span class="slab" data-i18n="menu.load">Load game</span></button>
+      <button data-act="chapters"><span class="slab" data-i18n="menu.chapters">Chapters</span></button>
+      <button data-act="sandbox" class="unlock" hidden><span class="slab" data-i18n="menu.sandbox">Sandbox</span></button>
+      <button data-act="letter" class="unlock" hidden><span class="slab" data-i18n="menu.letter">Read the letter</span></button>
+      <button data-act="options"><span class="slab" data-i18n="menu.options">Options</span></button>
+      <button data-act="quit"><span class="slab" data-i18n="menu.quit">Quit</span></button>
     </nav>
   </div>
-  <div class="build"><em id="tagline"></em>build 37.0 · 03 Oct 2026<br>for Uncle V///</div>
+  <div class="build"><em id="tagline"></em><span data-i18n="menu.build">build 37.0 · 03 Oct 2026</span><br><span data-i18n="menu.for">for Uncle V///</span></div>
 </div>
 <div id="mtip" role="tooltip" hidden></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="sel-red" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" type="saturate" values="0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.6 -1.5 -1.5 0 -0.12" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in" result="red"/><feMerge><feMergeNode in="g"/><feMergeNode in="red"/></feMerge></filter></svg>
 
 <div id="chapters" class="ov panel" hidden>
-  <div class="box"><h2>Chapters <button data-close>Back</button></h2><div class="chgrid" id="chgrid"></div></div>
+  <div class="box"><h2><span data-i18n="panel.chapters">Chapters</span> <button data-close data-i18n="panel.back">Back</button></h2><div class="chgrid" id="chgrid"></div></div>
 </div>
 
 <div id="options" class="ov panel" hidden>
-  <div class="box"><h2>Options <button data-close>Back</button></h2>
+  <div class="box"><h2><span data-i18n="panel.options">Options</span> <button data-close data-i18n="panel.back">Back</button></h2>
     <div class="opts">
-      <div class="grp">Audio</div>
-      <label class="orow" for="vol-master"><span class="lbl">Master volume</span><span class="ctl"><input id="vol-master" type="range" min="0" max="1" step="0.01" value="0.9"></span><span class="q"></span></label>
-      <label class="orow" for="vol-music"><span class="lbl">Music</span><span class="ctl"><input id="vol-music" type="range" min="0" max="1" step="0.01" value="0.7"></span><span class="q"></span></label>
-      <label class="orow" for="vol-sfx"><span class="lbl">Effects</span><span class="ctl"><input id="vol-sfx" type="range" min="0" max="1" step="0.01" value="1"></span><span class="q"></span></label>
-      <div class="orow"><span class="lbl">Audio</span><span class="ctl"><span class="seg"><button aria-pressed="true" data-lock>Procedural</button></span></span><span class="q">No samples were harmed.</span></div>
-      <div class="grp">Video</div>
-      <div class="orow"><span class="lbl">Quality</span><span class="ctl"><span class="seg"><button id="q-high" aria-pressed="true">High</button><button id="q-low" aria-pressed="false">Low</button></span></span><span class="q"></span></div>
-      <div class="orow"><span class="lbl">Physics quality</span><span class="ctl"><span class="seg"><button aria-pressed="true" data-lock>Ludicrous</button></span><svg class="lock" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z"/></svg></span><span class="q">Locked. Anything less would be a lie.</span></div>
-      <div class="grp">Gameplay</div>
-      <div class="orow"><span class="lbl">Subtitles</span><span class="ctl"><span class="seg"><button aria-pressed="true" data-lock>Always</button></span></span><span class="q">The narrator insists.</span></div>
-      <div class="orow"><span class="lbl">Narrator sarcasm</span><span class="ctl"><input type="range" min="0" max="100" step="1" value="37" data-lock aria-disabled="true" aria-label="Narrator sarcasm, locked at 37 percent"><span class="val">37%</span><svg class="lock" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z"/></svg></span><span class="q">Locked to age.</span></div>
-      <div class="orow"><span class="lbl">Laugh track</span><span class="ctl"><span class="seg"><button id="opt-laugh-on" aria-pressed="false">On</button><button id="opt-laugh-off" aria-pressed="true">Off</button></span></span><span class="q">This is a single-camera show. We're not animals.</span></div>
-      <div class="orow"><span class="lbl">Difficulty</span><span class="ctl"><span class="seg" id="opt-diff"><button data-v="story">Story</button><button data-v="normal">Normal</button><button data-v="pk">Pastor's Kid</button></span></span><span class="q">All three play the same card.</span></div>
+      <div class="grp" data-i18n="opt.lang.grp">Language</div>
+      <div class="orow"><span class="lbl" data-i18n="opt.lang">Language</span><span class="ctl"><span class="seg" id="opt-lang"><button data-v="en" lang="en">English</button><button data-v="ru" lang="ru">Русский</button></span></span><span class="q" data-i18n="opt.lang.q">The jokes were rewritten, not translated.</span></div>
+      <div class="grp" data-i18n="opt.audio.grp">Audio</div>
+      <label class="orow" for="vol-master"><span class="lbl" data-i18n="opt.vol.master">Master volume</span><span class="ctl"><input id="vol-master" type="range" min="0" max="1" step="0.01" value="0.9"></span><span class="q"></span></label>
+      <label class="orow" for="vol-music"><span class="lbl" data-i18n="opt.vol.music">Music</span><span class="ctl"><input id="vol-music" type="range" min="0" max="1" step="0.01" value="0.7"></span><span class="q"></span></label>
+      <label class="orow" for="vol-sfx"><span class="lbl" data-i18n="opt.vol.sfx">Effects</span><span class="ctl"><input id="vol-sfx" type="range" min="0" max="1" step="0.01" value="1"></span><span class="q"></span></label>
+      <div class="orow"><span class="lbl" data-i18n="opt.audio">Audio</span><span class="ctl"><span class="seg"><button aria-pressed="true" data-lock data-i18n="opt.audio.v">Procedural</button></span></span><span class="q" data-i18n="opt.audio.q">No samples were harmed.</span></div>
+      <div class="grp" data-i18n="opt.video.grp">Video</div>
+      <div class="orow"><span class="lbl" data-i18n="opt.quality">Quality</span><span class="ctl"><span class="seg"><button id="q-high" aria-pressed="true" data-i18n="opt.quality.high">High</button><button id="q-low" aria-pressed="false" data-i18n="opt.quality.low">Low</button></span></span><span class="q"></span></div>
+      <div class="orow"><span class="lbl" data-i18n="opt.physics">Physics quality</span><span class="ctl"><span class="seg"><button aria-pressed="true" data-lock data-i18n="opt.physics.v">Ludicrous</button></span><svg class="lock" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z"/></svg></span><span class="q" data-i18n="opt.physics.q">Locked. Anything less would be a lie.</span></div>
+      <div class="grp" data-i18n="opt.game.grp">Gameplay</div>
+      <div class="orow"><span class="lbl" data-i18n="opt.subs">Subtitles</span><span class="ctl"><span class="seg" id="opt-subs"><button data-v="click" data-i18n="opt.subs.click">Wait for a click</button><button data-v="auto" data-i18n="opt.subs.auto">Auto</button></span></span><span class="q" data-i18n="opt.subs.q">The narrator waits for you. Nothing gets missed.</span></div>
+      <div class="orow"><span class="lbl" data-i18n="opt.sarcasm">Narrator sarcasm</span><span class="ctl"><input type="range" min="0" max="100" step="1" value="37" data-lock aria-disabled="true" aria-label="Narrator sarcasm, locked at 37 percent" data-i18n-aria="opt.sarcasm.aria"><span class="val">37%</span><svg class="lock" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z"/></svg></span><span class="q" data-i18n="opt.sarcasm.q">Locked to age.</span></div>
+      <div class="orow"><span class="lbl" data-i18n="opt.laugh">Laugh track</span><span class="ctl"><span class="seg"><button id="opt-laugh-on" aria-pressed="false" data-i18n="opt.on">On</button><button id="opt-laugh-off" aria-pressed="true" data-i18n="opt.off">Off</button></span></span><span class="q" data-i18n="opt.laugh.q">This is a single-camera show. We're not animals.</span></div>
+      <div class="orow"><span class="lbl" data-i18n="opt.diff">Difficulty</span><span class="ctl"><span class="seg" id="opt-diff"><button data-v="story" data-i18n="opt.diff.story">Story</button><button data-v="normal" data-i18n="opt.diff.normal">Normal</button><button data-v="pk" data-i18n="opt.diff.pk">Pastor's Kid</button></span></span><span class="q" data-i18n="opt.diff.q">All three play the same card.</span></div>
     </div>
   </div>
 </div>
 
 <div id="quit" class="ov panel" hidden role="dialog" aria-modal="true" aria-labelledby="quitq">
   <div class="qbox">
-    <div class="qk">QUIT GAME</div>
-    <h3 id="quitq">Quit? It's your birthday.</h3>
-    <div class="qbtns"><button class="qbtn" id="qyes">[ YES ]</button><button class="qbtn" id="qno" data-close>[ NO ]</button></div>
-    <p class="qnote" id="qnote" hidden>Well. That settles that.</p>
+    <div class="qk" data-i18n="quit.k">QUIT GAME</div>
+    <h3 id="quitq" data-i18n="quit.q">Quit? It's your birthday.</h3>
+    <div class="qbtns"><button class="qbtn" id="qyes" data-i18n="quit.yes">[ YES ]</button><button class="qbtn" id="qno" data-close data-i18n="quit.no">[ NO ]</button></div>
+    <p class="qnote" id="qnote" hidden data-i18n="quit.note">Well. That settles that.</p>
   </div>
 </div>
 
@@ -376,18 +416,22 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); out
 <div id="caps" class="ov"></div>
 <div id="prompt" class="ov"><div class="p" id="promptp"></div></div>
 <div id="subs" class="ov"><div class="cc" id="cc"></div></div>
-<div id="pause" class="ov" hidden><button id="pausebtn" aria-label="Resume">Paused<span id="pausehint">P or click to resume</span></button></div>
-<div id="ach" class="ov"><div class="a" id="acha"><div class="ic">★</div><div><div class="k">Achievement unlocked</div><div class="t" id="acht"></div><div class="d" id="achd"></div></div></div></div>
-<div id="next" class="ov"><button id="nextbtn"><span id="nextlabel">Next chapter</span><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="3"/><circle id="nextring" cx="10" cy="10" r="8" fill="none" stroke="#0c0b0a" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="0" transform="rotate(-90 10 10)"/></svg></button></div>
+<div id="pause" class="ov" hidden><button id="pausebtn" aria-label="Resume" data-i18n-aria="ctl.resume"><span class="pt" data-i18n="pause.t">Paused</span><span class="ph" id="pausehint" data-i18n="pause.hint">P or click to resume</span></button></div>
+<div id="ach" class="ov"><div class="a" id="acha"><div class="ic">★</div><div><div class="k" data-i18n="ach.k">Achievement unlocked</div><div class="t" id="acht"></div><div class="d" id="achd"></div></div></div></div>
+<div id="next" class="ov"><button id="nextbtn"><span id="nextlabel" data-i18n="next.chapter">Next chapter</span><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="3"/><circle id="nextring" cx="10" cy="10" r="8" fill="none" stroke="#0c0b0a" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="0" transform="rotate(-90 10 10)"/></svg></button></div>
 <div id="ctl" class="ov" hidden>
   <span class="chip" id="chip"></span>
-  <button id="b-pause" aria-label="Pause"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="3" width="4" height="14"/><rect x="12" y="3" width="4" height="14"/></svg></button>
-  <button id="b-mute" aria-label="Mute"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 7h4l5-4v14l-5-4H3z"/><path d="M14 6.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></button>
-  <button id="b-skip" aria-label="Skip chapter"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3l9 7-9 7z"/><rect x="14" y="3" width="3" height="14"/></svg></button>
-  <button id="b-menu" aria-label="Menu"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="4" width="14" height="2"/><rect x="3" y="9" width="14" height="2"/><rect x="3" y="14" width="14" height="2"/></svg></button>
+  <button id="b-pause" aria-label="Pause" data-i18n-aria="ctl.pause"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="3" width="4" height="14"/><rect x="12" y="3" width="4" height="14"/></svg></button>
+  <button id="b-mute" aria-label="Mute" data-i18n-aria="ctl.mute"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 7h4l5-4v14l-5-4H3z"/><path d="M14 6.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg></button>
+  <button id="b-skip" aria-label="Skip chapter" data-i18n-aria="ctl.skip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3l9 7-9 7z"/><rect x="14" y="3" width="3" height="14"/></svg></button>
+  <button id="b-log" aria-label="Dialogue log" data-i18n-aria="log.title"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4h10v2H3zM3 9h14v2H3zM3 14h8v2H3z"/><path d="M15 2l3 3-3 3z"/></svg></button>
+  <button id="b-menu" aria-label="Menu" data-i18n-aria="ctl.menu"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="4" width="14" height="2"/><rect x="3" y="9" width="14" height="2"/><rect x="3" y="14" width="14" height="2"/></svg></button>
 </div>
+<div id="logp" class="ov panel" hidden><div class="box"><h2><span data-i18n="log.title">Everything I said</span> <button data-close id="logclose" data-i18n="log.close">Close</button></h2><div id="loglist"></div></div></div>
 <div id="letter" class="ov" hidden><div class="sheet" id="sheet"></div></div>
-<div id="loading" class="ov"><div class="spin"></div><span id="loadtext">Loading</span></div>
+<div id="loading" class="ov"><div class="spin"></div><span id="loadtext" data-i18n="loading">Loading</span></div>
 <div id="fade" class="ov"></div>
 
 <script type="module" src="./js/main.js"></script>
+</body>
+</html>
